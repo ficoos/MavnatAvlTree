@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace StudentTree
 {
-	public class AvlTree<TKey, TValue> : IEnumerable<TValue> where TKey : IComparable<TKey>
+	public class AvlTree<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : IComparable<TKey>
 	{
 		private sealed class Node
 		{
@@ -27,13 +27,8 @@ namespace StudentTree
 		}
 
 		private Node m_Root;
-	
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.GetEnumerator();
-		}
 
-		public IEnumerator<TValue> GetEnumerator()
+		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 		{
 			if (this.m_Root != null)
 			{
@@ -44,7 +39,7 @@ namespace StudentTree
 			}
 		}
 
-		private IEnumerable<TValue> iterate(Node i_Node)
+		private IEnumerable<KeyValuePair<TKey, TValue>> iterate(Node i_Node)
 		{
 			if (i_Node.Left != null)
 			{
@@ -62,7 +57,7 @@ namespace StudentTree
 				}
 			}
 
-			yield return i_Node.Value;
+			yield return new KeyValuePair<TKey, TValue>(i_Node.Key, i_Node.Value);
 		}
 
 		public void Clear()
@@ -78,6 +73,11 @@ namespace StudentTree
 			}
 		}
 
+		// Function is different from assignment to be more idiomatic
+		// If TValue is a struct there would be no way to differentiate between
+		// not finding a value and the value being default(TValue).
+		// So instead of returning null we return a bool and using an out parameter
+		// for the value.
 		public bool Find(TKey i_Key, out TValue i_Value)
 		{
 			Node node = this.m_Root;
@@ -635,9 +635,9 @@ namespace StudentTree
 
 		public void PrintDictionary()
 		{
-			foreach (TValue value in this)
+			foreach (KeyValuePair<TKey, TValue> keyValuePair in this)
 			{
-				Console.WriteLine(value.ToString());
+				Console.WriteLine("{0}:{1}", keyValuePair.Key, keyValuePair.Value);
 			}
 		}
 
@@ -682,6 +682,11 @@ namespace StudentTree
 			{
 				Console.WriteLine("{0}{1}", i_Indent, i_IsLeftChild ? "|" : string.Empty);
 			}
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
 		}
 	}
 }
